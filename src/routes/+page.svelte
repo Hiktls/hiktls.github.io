@@ -58,17 +58,6 @@
         }
     });
 
-    // CHALLENGE VARS according to order
-
-    // let ranStatus = $state({
-    //     "hetzner": false,
-    //     "linux":false,
-    //     "svelte":false,
-    //     "fast":false,
-    //     "docker":false
-    // });
-    
-
     setInterval(() => {
         title = TITLES[Math.floor(Math.random() * TITLES.length)]
     },4000)
@@ -231,7 +220,29 @@ Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.4.0-144-generic x86_64)
  * Support:        https://ubuntu.com/advantage
  *** REMINDER: DO NOT RUN APPS ON DEV MODE ON PROD!!! ***
 root@user-23-unnamed-server:~$ 
-`
+`,
+    solidity:
+`// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
+
+contract EtherWallet {
+    address payable public owner;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
+
+    receive() external payable {}
+
+    function withdraw(uint256 _amount) external {
+        require(msg.sender == owner, "caller is not owner");
+        payable(msg.sender).transfer(_amount);
+    }
+
+    function getBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+}`
 
 };
     
@@ -342,7 +353,7 @@ root@user-23-unnamed-server:~$
                 {@render logoCard(dockerImg,"docker",$_("main.featuring.docker"),samples.docker)}
                 {@render logoCard(jsImg,"javascript",$_("main.featuring.javascript"),samples.javascript)}
                 {@render logoCard(hetzImg,"hetzner",$_("main.featuring.hetzner"),samples.hetzner)}
-                {@render logoCard(solidityImg,"solidity",$_("main.featuring.solidity"),samples.fastApi)}
+                {@render logoCard(solidityImg,"solidity",$_("main.featuring.solidity"),samples.solidity)}
             </div>
 
             <div>

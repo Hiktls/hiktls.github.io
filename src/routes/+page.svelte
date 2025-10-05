@@ -1,4 +1,5 @@
 <script lang="ts">
+
     // HIGHLIGHT.JS IMPORTS
     import hljs from 'highlight.js/lib/core';
     import "highlight.js/styles/github-dark.css";
@@ -28,14 +29,7 @@
 
 
     //i18n
-    import {_,locale,time,date,number} from 'svelte-i18n';
-    import {escapeHtml} from "$lib/i18n";
-	import { scale } from 'svelte/transition';
-	import { error } from '@sveltejs/kit';
-
-
-	import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
-	import Input from '$lib/components/ui/input/input.svelte';
+    import {_} from 'svelte-i18n';
     
     // NOTE:
     // USE FASTAPI FOR INPUT. Add a fake function that will receive input without printing it, and it will write to an env value. RECEIVE THE ENV KEY TOO
@@ -70,134 +64,6 @@
     //     "docker":false
     // });
     
-    type Dict = { [key: string]: boolean };
-    let ranStatus = $state({
-    } as Dict);
-
-    ranStatus["hetzner"] = false;
-    ranStatus["linux"] = false;
-    ranStatus["svelte"] = false;
-    ranStatus["fastapi"] = false;
-    ranStatus["docker"] = false;
-    ranStatus["javascript"] = false;
-    ranStatus["rust"] = false;
-    ranStatus["python"] = false;
-
-
-    let errMsg = $state("");
-
-    let depMap = new Map([
-        ["hetzner",null],
-        ["linux","hetzner"],
-        ["svelte","linux"],
-        ["fastapi","svelte"],
-        ["rust","docker"],
-        ["python","rust"],
-        ["docker","fastapi"],
-        ["javascript","svelte"],
-        ["solidity",null]
-    ]);
-
-    let errorMap = new Map([
-        ["hetzner","Object \"servInt\" of type ServerInterface is not defined! Did you start the server?"],
-        ["linux","curl: (7) Failed to connect to localhost port 8000: Connection refused. Did you run the start commands?"],
-        ["svelte"," Error: Input cannot be empty! Did you enter a message?"],
-        ["fastapi","fetch failed: TypeError: Failed to fetch. Did you start the FastAPI server?"],
-        ["docker","Variables MESSAGE and KEY are undefined. Did you start the container?"],
-        ["rust","cargo: main.rs not found. Has the dockerfile been run?"],
-        ["python","KeyError: 'ENCRYPTED'. Did you run the Rust program?"],
-    ])
-
-    function runValidation(target:string) : string {
-        let resp = "a";
-        depMap.forEach((value,key) => {
-            if (key == target){
-                if (value != null && !ranStatus[value]){
-                    console.log(value)
-                    resp = errorMap.get(value) as string;
-                }
-                else {
-                    console.log("STARTED",target)
-                    ranStatus[target] = true;
-                    resp =  "";
-                }
-            }
-        });
-        return resp;
-    }
-
-
-    let keyInput = $state("");
-    let nonceInput = $state("");
-    let cipherInput = $state("");
-
-
-    let resultLabel = $state("");
-
-    function attemptDecryption(key:string, nonce:string , cipher:string) {
-
-        const validHash = "47635cbe1a0ee7f472ff202955bf9b34";
-        
-        if (key.length != 32){
-            return ["Key length is invalid.",1];
-        }
-        if (nonce.length != 12) {
-            return ["Nonce length is invalid.",1];
-        }
-
-        let cha = new ChaCha20Poly1305(Uint8Array.from(key));
-
-        console.log("Key is ",key);
-        console.log("Nonce is ",nonce);
-        console.log("Cipher is ",cipher);
-
-        let decryptRes = cha.open(Uint8Array.from(nonce),Uint8Array.fromBase64("nwfnvlVROHqYupd8cy0IDcsPJvKyM0SIceFDOBYj9kehnA=="))
-    
-        if (decryptRes == null) {
-            return ["Invalid key/nonce, encryption failed. Stay sharp, its simpler than you think!",1];
-        }
-
-        console.log(decryptRes);
-
-        return [decode(decryptRes),0];
-    }
-
-    function encrypt(key:string,nonce:string,text:string) {
-                
-        if (key.length != 32){
-            return ["Key length is invalid.",1];
-        }
-        if (nonce.length != 12) {
-            return ["Nonce length is invalid.",1];
-        }
-        
-        let cha = new ChaCha20Poly1305(Uint8Array.from(key))
-
-        let result = cha.seal(Uint8Array.from(nonce), Uint8Array.from(text));
-
-        if (result == null) {
-            return new Uint8Array();
-        }
-
-
-
-        return [0, result.toBase64()];
-
-    }
-
-    function decode(data:Uint8Array){
-        let buffer = "";
-
-        data.forEach(element => {
-            buffer += String.fromCharCode(element);
-        });
-        
-        return buffer;
-    }
-    
-    console.log("ENCRYPTED TEXT TEST: ", encrypt("lovelace000000000000000000000000","AAAAAAAAAAAA","The cake is a lie!"))
-
-    let buttonTurn = $state(false);
 
     setInterval(() => {
         title = TITLES[Math.floor(Math.random() * TITLES.length)]
@@ -407,10 +273,6 @@ root@user-23-unnamed-server:~$
 
 
 
-    $effect(() => {
-        attemptDecryption("lovelace000000000000000000000000","AAAAAAAAAAAA","nwfnvlVROHqYupd8cy0IDcsPJvKyM0SIceFDOBYj9kehnA==");
-    });
-
 </script>
 
 
@@ -420,7 +282,7 @@ root@user-23-unnamed-server:~$
 
 
 <div class="md:h-screen w-screen bg-no-repeat font-sansation mt-60">
-    <div class="w-225 h-50 m-auto mb-20 font-sansation">
+    <div class="md:w-225 w-100 text-center h-50 m-auto mb-20 font-sansation">
         <span class="">
             <span class=" will-change-contents lg:text-6xl text-4xl">{$_("main.title", {values:{name: "Kaan"}})}</span>
             {#key title}{@render titleText()}{/key}
@@ -429,21 +291,21 @@ root@user-23-unnamed-server:~$
         
         
         
-        <div class="m-auto w-60 h-80">
-            <Button class="w-40 h-10 lg:text-lg pointer-events-auto" onclick={() => window.location.href="#about"}><ArrowDown size={4}/> {$_("main.scroll_butt")}</Button>
+        <div class="m-auto w-60 h-80 md:visible invisible">
+            <Button class="w-40  h-10 lg:text-lg pointer-events-auto" onclick={() => window.location.href="#about"}><ArrowDown size={4}/> {$_("main.scroll_butt")}</Button>
         </div>
 
-        <div id="about" class="w-screen ">
+        <div id="about" class="w-screen">
 
             {#snippet logoCard(src:string,alt:string,description:string,sample:string)}
             {@const highlighted = hljs.highlightAuto(sample).value}
             <Drawer.Root>
                 <Drawer.Trigger>
-                    <div class="md:size-40 w-45 transition ease-in-out hover:scale-110 hover:rotate-5">
+                    <div class="md:size-40 md:w-45 size-25  transition ease-in-out hover:scale-110 hover:rotate-5">
                         {#if alt != "solidity"}
-                            <div class="block absolute rounded-2xl md:size-10"> {#if ranStatus[alt]} <Check class="bg-green-600 rounded-3xl size-10"/>{:else} <Minus class="rounded-3xl bg-input/100 size-10"/> {/if}</div>
+                            <div class="block absolute rounded-2xl md:size-10"> </div>
                         {/if}
-                        <div id={alt} class=" m-auto rounded-2xl border-muted-foreground border-2 md:size-40 flex justify-center select-none "> <img class=" animate-none size-20 m-auto" src={src} alt={alt}/> </div>
+                        <div id={alt} class=" m-auto rounded-2xl border-muted-foreground border-2 md:size-40 flex justify-center select-none "> <img class=" animate-none md:size-20 size-20  m-auto" src={src} alt={alt}/> </div>
                     </div>
                 </Drawer.Trigger>
                 <Drawer.Content>
@@ -452,55 +314,12 @@ root@user-23-unnamed-server:~$
                     </Drawer.Header>
                     <div class=" overflow-hidden pointer-events-auto">
                         <p class="ml-5 md:text-2xl">{description}</p>
-                        {#if alt != "docker" && alt != "javascript"}
-                        <Button disabled={ranStatus[alt]} class="md:text-xl ml-3 w-35" onclick={() => {
-                            let res = runValidation(alt);
-
-                            buttonTurn = true;
-                            setTimeout(() => {
-
-                                buttonTurn = false;
-
-                                if (res == ""){
-                                    errMsg = "";
-                                    if (alt == "svelte") {
-                                        ranStatus["javascript"] = true;
-                                        console.log(window.atob("bG92ZWxhY2UwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=")) // THE KEY THE KEY THE KEY THE 
-                                    }
-                                    else if (alt == "fastapi"){
-                                        ranStatus["docker"] = true;
-                                    }
-                                }
-                                else {
-                                    errMsg = res;
-                                }
-                            },1500)
-
-                            
-
-                            }}>
-                            {#if buttonTurn} Running <LoaderCircle class="animate-spin"/> {:else} Run {/if}
-                        </Button> 
-                        {/if}
-                        {#if alt != "hetzner"}
-                            <span class="text-destructive text-2xl ml-5 animate-pulse">{#key errMsg}{errMsg}{/key}</span>
+                            <span class="text-destructive text-2xl ml-5 animate-pulse"></span>
                         <div class=" bg-[#27272a] md:w-250 ml-5 mt-2 pt-2 md:h-100 overflow-y-scroll pl-2 pb-2 rounded-lg border-1 border-muted-foreground text-white">
                             <code class="whitespace-pre-wrap md:text-lg pointer-events-auto overflow-y-scroll">
                                 {@html highlighted}
                             </code>
                         </div>
-                        {:else}
-                                <span class="text-destructive text-2xl ml-5 animate-pulse">{#key errMsg}{errMsg}{/key}</span>
-                            <div class=" bg-[#27272a] md:w-250 ml-5 mt-2 pt-2 md:h-100 overflow-y-scroll pl-2 pb-2 rounded-lg border-1 border-muted-foreground text-white">
-                                
-                                <code class="whitespace-pre-wrap md:text-lg pointer-events-auto overflow-y-scroll">
-                                    {#if ranStatus["hetzner"] && !buttonTurn}
-                                        {sample}
-                                    {/if}
-                                </code>
-                            </div>
-                        {/if}
-
                     </div>
                     <Drawer.Footer>
                         <Drawer.Close class={buttonVariants({ variant: "outline" })}>{$_("main.drawer.exit")}</Drawer.Close>
@@ -509,8 +328,8 @@ root@user-23-unnamed-server:~$
             </Drawer.Root>
             {/snippet}
 
-            <h1 class=" font-sansation font-bold text-4xl text-center mb-5">{$_("main.featuring.title")}</h1>
-            <div class=" pointer-events-auto lg:w-250 h-200 overflow-hidden grid grid-cols-3 grid-rows-3 m-auto gap-20 p-5 bg-accent/60 mb-10 rounded-3xl">
+            <h1 class=" font-sansation font-bold md:text-4xl text-2xl text-center mb-5">{$_("main.featuring.title")}</h1>
+            <div class=" pointer-events-auto md:w-250 w-80 h-200 overflow-hidden grid md:grid-cols-3 grid-cols-2 md:grid-rows-3 grid-rows-4 m-auto gap-20 p-5 bg-accent/60 mb-10 rounded-3xl">
                 {@render logoCard(fastImg,"fastapi",$_("main.featuring.fastapi"),samples.fastApi)}
                 {@render logoCard(svelteImg,"svelte",$_("main.featuring.svelte"),samples.svelte)}
                 {@render logoCard(linuxImg,"linux",$_("main.featuring.linux"),samples.linux)}
@@ -523,10 +342,10 @@ root@user-23-unnamed-server:~$
             </div>
 
             <div>
-                <h1 class="md:text-5xl text-center font-bold">{@html $_("main.current.title")}</h1>
+                <h1 class="md:text-5xl text-2xl text-center font-bold">{@html $_("main.current.title")}</h1>
                 
-                <div class="grid grid-cols-2 m-auto justify-items-center-safe ml-10 mt-10 md:h-150 pointer-events-auto">
-                    <div class="md:w-200 md:h-100 bg-muted rounded-2xl space-x-10 p-5 pt-0">
+                <div class="grid md:grid-rows-0 grid-rows-2 md:grid-cols-2 grid-cols-1 m-auto justify-items-center-safe md:ml-10 mt-10 md:h-150 pointer-events-auto">
+                    <div class="md:w-200 md:h-100 w-100 h-60 bg-muted rounded-2xl space-x-10 p-5 pt-0">
                         <h1 class="mt-2 mb-2 text-3xl text-center font-semibold">{$_("main.current.current.title")}</h1>
                         <h2 class="text-2xl font-bellota-text"> {$_("main.current.current.body")}</h2>
                         <h3 class="text-2xl mt-5  font-bellota-text">{$_("main.current.current.offer_label")}: <span class="font-sansation">{@html AVAILABLE_FOR_WORK == 2 ? $_("main.current.current.available") : AVAILABLE_FOR_WORK == 1 ? $_("main.current.current.maybe") : $_("main.current.current.not_available")}</span></h3>
@@ -535,7 +354,7 @@ root@user-23-unnamed-server:~$
 
                     <div class="bg-muted rounded-2xl md:w-100 md:h-100">
                         <h1 class="text-3xl text-center font-semibold mt-2"> {$_("main.contact.title")}</h1>
-                        <h2 class="text-2xl ml-5 mt-10 mb-5"> Kaan Ozdamar </h2>
+                        <h2 class="text-2xl ml-5 mt-10 mb-5"> Kaan Özdamar </h2>
                         <div class="flex-col flex gap-5">
                             <Button variant="link" class="text-2xl mr-auto ml-5"><LinkedinIcon class="size-6"/> LinkedIn</Button>
                             <Button variant="link" class="text-2xl mr-auto ml-5"><GithubIcon class="size-6"/> Github</Button>
@@ -546,28 +365,7 @@ root@user-23-unnamed-server:~$
                 </div>
                 
             </div>
-            <div class="md:w-200 md:h-70 border-0 border-red-600 m-auto pointer-events-auto">
-                <div class="flex flex-row gap-5">
-                    <div class="flex flex-col gap-5">
-                        <Input bind:value={keyInput} class="w-90" placeholder="Key"/>
-                        <Input bind:value={nonceInput} class="w-90" placeholder="Nonce"/>
-                        <Input bind:value={cipherInput} class="w-90" placeholder="Cipher"/>
-                    </div>
-                    <Button class="md:w-30 h-10" type="submit" onclick={() => {
-                        let result = attemptDecryption(keyInput,nonceInput,cipherInput);
-
-
-                        if (result[1] == 1) {
-                            resultLabel = "ERROR: " + result[0]
-                            return;
-                        }
-                        resultLabel = "Plain Text: " + result[0]
-
-
-                    }}> Decrypt </Button>
-                </div>
-                <text class="">{resultLabel}</text>
-            </div>
+            
 
         </div>
 </div>

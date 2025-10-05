@@ -31,7 +31,11 @@
     import {_,locale,time,date,number} from 'svelte-i18n';
     import {escapeHtml} from "$lib/i18n";
 	import { scale } from 'svelte/transition';
+	import { error } from '@sveltejs/kit';
 
+
+	import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
+	import Input from '$lib/components/ui/input/input.svelte';
     
     // NOTE:
     // USE FASTAPI FOR INPUT. Add a fake function that will receive input without printing it, and it will write to an env value. RECEIVE THE ENV KEY TOO
@@ -72,11 +76,126 @@
 
     ranStatus["hetzner"] = false;
     ranStatus["linux"] = false;
-    ranStatus["linux"] = false;
-    ranStatus["linux"] = false;
+    ranStatus["svelte"] = false;
+    ranStatus["fastapi"] = false;
     ranStatus["docker"] = false;
+    ranStatus["javascript"] = false;
+    ranStatus["rust"] = false;
+    ranStatus["python"] = false;
 
 
+    let errMsg = $state("");
+
+    let depMap = new Map([
+        ["hetzner",null],
+        ["linux","hetzner"],
+        ["svelte","linux"],
+        ["fastapi","svelte"],
+        ["rust","docker"],
+        ["python","rust"],
+        ["docker","fastapi"],
+        ["javascript","svelte"],
+        ["solidity",null]
+    ]);
+
+    let errorMap = new Map([
+        ["hetzner","Object \"servInt\" of type ServerInterface is not defined! Did you start the server?"],
+        ["linux","curl: (7) Failed to connect to localhost port 8000: Connection refused. Did you run the start commands?"],
+        ["svelte"," Error: Input cannot be empty! Did you enter a message?"],
+        ["fastapi","fetch failed: TypeError: Failed to fetch. Did you start the FastAPI server?"],
+        ["docker","Variables MESSAGE and KEY are undefined. Did you start the container?"],
+        ["rust","cargo: main.rs not found. Has the dockerfile been run?"],
+        ["python","KeyError: 'ENCRYPTED'. Did you run the Rust program?"],
+    ])
+
+    function runValidation(target:string) : string {
+        let resp = "a";
+        depMap.forEach((value,key) => {
+            if (key == target){
+                if (value != null && !ranStatus[value]){
+                    console.log(value)
+                    resp = errorMap.get(value) as string;
+                }
+                else {
+                    console.log("STARTED",target)
+                    ranStatus[target] = true;
+                    resp =  "";
+                }
+            }
+        });
+        return resp;
+    }
+
+
+    let keyInput = $state("");
+    let nonceInput = $state("");
+    let cipherInput = $state("");
+
+
+    let resultLabel = $state("");
+
+    function attemptDecryption(key:string, nonce:string , cipher:string) {
+
+        const validHash = "47635cbe1a0ee7f472ff202955bf9b34";
+        
+        if (key.length != 32){
+            return ["Key length is invalid.",1];
+        }
+        if (nonce.length != 12) {
+            return ["Nonce length is invalid.",1];
+        }
+
+        let cha = new ChaCha20Poly1305(Uint8Array.from(key));
+
+        console.log("Key is ",key);
+        console.log("Nonce is ",nonce);
+        console.log("Cipher is ",cipher);
+
+        let decryptRes = cha.open(Uint8Array.from(nonce),Uint8Array.fromBase64("nwfnvlVROHqYupd8cy0IDcsPJvKyM0SIceFDOBYj9kehnA=="))
+    
+        if (decryptRes == null) {
+            return ["Invalid key/nonce, encryption failed. Stay sharp, its simpler than you think!",1];
+        }
+
+        console.log(decryptRes);
+
+        return [decode(decryptRes),0];
+    }
+
+    function encrypt(key:string,nonce:string,text:string) {
+                
+        if (key.length != 32){
+            return ["Key length is invalid.",1];
+        }
+        if (nonce.length != 12) {
+            return ["Nonce length is invalid.",1];
+        }
+        
+        let cha = new ChaCha20Poly1305(Uint8Array.from(key))
+
+        let result = cha.seal(Uint8Array.from(nonce), Uint8Array.from(text));
+
+        if (result == null) {
+            return new Uint8Array();
+        }
+
+
+
+        return [0, result.toBase64()];
+
+    }
+
+    function decode(data:Uint8Array){
+        let buffer = "";
+
+        data.forEach(element => {
+            buffer += String.fromCharCode(element);
+        });
+        
+        return buffer;
+    }
+    
+    console.log("ENCRYPTED TEXT TEST: ", encrypt("lovelace000000000000000000000000","AAAAAAAAAAAA","The cake is a lie!"))
 
     let buttonTurn = $state(false);
 
@@ -97,7 +216,7 @@ client = docker.from_env()
 
 app = FastAPI()
 
-@app.get("/encrypt")
+@app.get("/encrypt") # I LOVE FASTAPI!!!
 def encrypt_message(msg: str, key: str) -> str:
     cont = client.containers.run("hiktls/encryptor",detach=True, 
         environment=["MESSAGE="+msg,"KEY="+key])
@@ -119,7 +238,7 @@ def encrypt_message(msg: str, key: str) -> str:
 
     let encrpyted = $state("");
 
-    function encryptText(){
+    function encryptText(){ // NOTE: No error handling, Im sure nothing will come of this...
         fetch("http://localhost:8000/encrypt?msg="+value+"&key="+data.key).then(res => {validate(res.text(),data.key);encrypted = res.text()});
     }
 ${svelteEnd}
@@ -134,11 +253,11 @@ use chacha20poly1305::aead::generic_array::typenum::Unsigned;
 use chacha20poly1305::aead::generic_array::GenericArray;
 use chacha20poly1305::aead::{Aead, AeadCore, KeyInit, OsRng};
 use chacha20poly1305::ChaCha20Poly1305;
+use generic_array::{typenum::U12, GenericArray};
 
-
-pub fn encrypt(cleartext: &str, key: &[u8]) -> Vec<u8> {
+pub fn encrypt(cleartext: &str, key: &[u8]) -> Vec<u8> { // NOTE: Thank god to stackoverflow...
     let cipher = ChaCha20Poly1305::new(GenericArray::from_slice(key));
-    let nonce = ChaCha20Poly1305::generate_nonce(&mut OsRng);
+    let nonce = GenericArray<u8,U12>::from(*b"AAAAAAAAAAAA") // IMPORTANT: Nonce should be random for each encryption, change before prod
     let mut obsf = cipher.encrypt(&nonce, cleartext.as_bytes()).unwrap();
     obsf.splice(..0, nonce.iter().copied());
     obsf
@@ -146,7 +265,7 @@ pub fn encrypt(cleartext: &str, key: &[u8]) -> Vec<u8> {
 
 
 fn main() {
-    let key = env::var("KEY").expect("KEY not found!");
+    let key = env::var("KEY").expect("KEY not found!"); // NOTE: No proper fatal error handling... URGENT FIX!!!
     let message = env::var("MESSAGE").expect("MESSAGE not found!");
     
     let encrypted = encrypt(message, key.as_bytes());
@@ -177,7 +296,9 @@ $ screen -d -m yarn run dev
 os.environ.pop("MESSAGE",None)
 os.environ.pop("KEY",None)
 
-print(os.getenv("ENCRYPTED"))
+print(os.getenv("ENCRYPTED")) # NOTE: Is this really the best way to carry data back to parent? Might need a fix, good for now.
+
+open("DEBUG.TXT","w").write(os.getenv("ENCRYPTED")) # NOTE TO SELF: This is copied back the the parent, should be removed on prod!!
 
 `,
     docker:
@@ -208,14 +329,12 @@ COPY --from=builder /app/rust-program/target/release/rust ./rust
 RUN chmod +x ./rust
 
 
-# Default command: run both
 CMD ["sh", "-c", "./rust && python script.py"]
 `,
     javascript:
 `// validation.ts
 
-export function validate(input: string,key:string) {
-    console.log("Validating input:", input); // REMOVE ON PROD!!!
+export function validate(input: string,key:string) { // NOTE: Not sure if we still need this, but rest of the code somehow depends on it. Will fix later
     console.log("Encryption key:",key); // REMOVE ON PROD!!!
     
     if (input.length === 0) {
@@ -288,6 +407,10 @@ root@user-23-unnamed-server:~$
 
 
 
+    $effect(() => {
+        attemptDecryption("lovelace000000000000000000000000","AAAAAAAAAAAA","nwfnvlVROHqYupd8cy0IDcsPJvKyM0SIceFDOBYj9kehnA==");
+    });
+
 </script>
 
 
@@ -316,9 +439,9 @@ root@user-23-unnamed-server:~$
             {@const highlighted = hljs.highlightAuto(sample).value}
             <Drawer.Root>
                 <Drawer.Trigger>
-                    <div class="md:size-40 w-45 transition ease-in-out hover:scale-110 hover:rotate-20">
+                    <div class="md:size-40 w-45 transition ease-in-out hover:scale-110 hover:rotate-5">
                         {#if alt != "solidity"}
-                            <div class="block absolute rounded-2xl md:size-10"> {#if ranStatus[alt]} <Check class="bg-green-600 rounded-3xl size-10"/>{:else} <Minus class="rounded-3xl bg-input size-10"/> {/if}</div>
+                            <div class="block absolute rounded-2xl md:size-10"> {#if ranStatus[alt]} <Check class="bg-green-600 rounded-3xl size-10"/>{:else} <Minus class="rounded-3xl bg-input/100 size-10"/> {/if}</div>
                         {/if}
                         <div id={alt} class=" m-auto rounded-2xl border-muted-foreground border-2 md:size-40 flex justify-center select-none "> <img class=" animate-none size-20 m-auto" src={src} alt={alt}/> </div>
                     </div>
@@ -329,18 +452,47 @@ root@user-23-unnamed-server:~$
                     </Drawer.Header>
                     <div class=" overflow-hidden pointer-events-auto">
                         <p class="ml-5 md:text-2xl">{description}</p>
+                        {#if alt != "docker" && alt != "javascript"}
+                        <Button disabled={ranStatus[alt]} class="md:text-xl ml-3 w-35" onclick={() => {
+                            let res = runValidation(alt);
+
+                            buttonTurn = true;
+                            setTimeout(() => {
+
+                                buttonTurn = false;
+
+                                if (res == ""){
+                                    errMsg = "";
+                                    if (alt == "svelte") {
+                                        ranStatus["javascript"] = true;
+                                        console.log(window.atob("bG92ZWxhY2UwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=")) // THE KEY THE KEY THE KEY THE 
+                                    }
+                                    else if (alt == "fastapi"){
+                                        ranStatus["docker"] = true;
+                                    }
+                                }
+                                else {
+                                    errMsg = res;
+                                }
+                            },1500)
+
+                            
+
+                            }}>
+                            {#if buttonTurn} Running <LoaderCircle class="animate-spin"/> {:else} Run {/if}
+                        </Button> 
+                        {/if}
                         {#if alt != "hetzner"}
-                        <Button></Button> {() => {// TODO: DO ME!!! FIX MEEE!!!!!
-                        }}
+                            <span class="text-destructive text-2xl ml-5 animate-pulse">{#key errMsg}{errMsg}{/key}</span>
                         <div class=" bg-[#27272a] md:w-250 ml-5 mt-2 pt-2 md:h-100 overflow-y-scroll pl-2 pb-2 rounded-lg border-1 border-muted-foreground text-white">
                             <code class="whitespace-pre-wrap md:text-lg pointer-events-auto overflow-y-scroll">
                                 {@html highlighted}
                             </code>
                         </div>
                         {:else}
-                            <Button class=" md:text-xl ml-2" onclick={() => { ranStatus["hetzner"] = true;buttonTurn = true;setTimeout(() => buttonTurn = false,1500)}}> {#if buttonTurn} Starting <LoaderCircle class="animate-spin"/> {:else} Start Server {/if}</Button>
-                            
+                                <span class="text-destructive text-2xl ml-5 animate-pulse">{#key errMsg}{errMsg}{/key}</span>
                             <div class=" bg-[#27272a] md:w-250 ml-5 mt-2 pt-2 md:h-100 overflow-y-scroll pl-2 pb-2 rounded-lg border-1 border-muted-foreground text-white">
+                                
                                 <code class="whitespace-pre-wrap md:text-lg pointer-events-auto overflow-y-scroll">
                                     {#if ranStatus["hetzner"] && !buttonTurn}
                                         {sample}
@@ -393,6 +545,28 @@ root@user-23-unnamed-server:~$
                     </div>
                 </div>
                 
+            </div>
+            <div class="md:w-200 md:h-70 border-0 border-red-600 m-auto pointer-events-auto">
+                <div class="flex flex-row gap-5">
+                    <div class="flex flex-col gap-5">
+                        <Input bind:value={keyInput} class="w-90" placeholder="Key"/>
+                        <Input bind:value={nonceInput} class="w-90" placeholder="Nonce"/>
+                        <Input bind:value={cipherInput} class="w-90" placeholder="Cipher"/>
+                    </div>
+                    <Button class="md:w-30 h-10" type="submit" onclick={() => {
+                        let result = attemptDecryption(keyInput,nonceInput,cipherInput);
+
+
+                        if (result[1] == 1) {
+                            resultLabel = "ERROR: " + result[0]
+                            return;
+                        }
+                        resultLabel = "Plain Text: " + result[0]
+
+
+                    }}> Decrypt </Button>
+                </div>
+                <text class="">{resultLabel}</text>
             </div>
 
         </div>

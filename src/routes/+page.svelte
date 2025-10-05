@@ -309,7 +309,7 @@ contract EtherWallet {
 {/snippet}
 
 
-<div class="md:h-500 h-500 w-screen bg-no-repeat font-sansation mt-60 overflow-x-hidden">
+<div class="md:h-500 h-500 w-screen bg-no-repeat font-sansation mt-60">
     <div class="md:w-225 w-100 text-center h-50 m-auto md:mb-20 mb-10 font-sansation">
         <span class="">
             <span class=" will-change-contents lg:text-6xl text-4xl">{$_("main.title", {values:{name: "Kaan"}})}</span>

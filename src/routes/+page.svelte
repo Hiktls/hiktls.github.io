@@ -29,7 +29,7 @@
 
 
     //i18n
-    import {_} from 'svelte-i18n';
+    import {_,locale} from 'svelte-i18n';
     
     // NOTE:
     // USE FASTAPI FOR INPUT. Add a fake function that will receive input without printing it, and it will write to an env value. RECEIVE THE ENV KEY TOO
@@ -49,10 +49,14 @@
     hljs.registerLanguage('xml', htmlType);
     hljs.registerLanguage('bash', bash);
     // ["a software developer","a linux enthusiast","a homecook","a backend developer","your future coworker","a language learning fan","a curious pentester"];
-    const TITLES = [$_("main.titles.option1"),$_("main.titles.option2"),$_("main.titles.option3"),$_("main.titles.option4"),$_("main.titles.option5"),$_("main.titles.option6"),$_("main.titles.option7"),$_("main.titles.option8"),$_("main.titles.option9"),$_("main.titles.option10")];
+    let TITLES = [$_("main.titles.option1"),$_("main.titles.option2"),$_("main.titles.option3"),$_("main.titles.option4"),$_("main.titles.option5"),$_("main.titles.option6"),$_("main.titles.option7"),$_("main.titles.option8"),$_("main.titles.option9"),$_("main.titles.option10")];
     let title = $state(TITLES[0]);
     
-
+    locale.subscribe(value => {
+        if (value) {
+            TITLES = [$_("main.titles.option1"),$_("main.titles.option2"),$_("main.titles.option3"),$_("main.titles.option4"),$_("main.titles.option5"),$_("main.titles.option6"),$_("main.titles.option7"),$_("main.titles.option8"),$_("main.titles.option9"),$_("main.titles.option10")];
+        }
+    });
 
     // CHALLENGE VARS according to order
 
@@ -282,7 +286,7 @@ root@user-23-unnamed-server:~$
 
 
 <div class="md:h-screen w-screen bg-no-repeat font-sansation mt-60">
-    <div class="md:w-225 w-100 text-center h-50 m-auto mb-20 font-sansation">
+    <div class="md:w-225 w-100 text-center h-50 m-auto md:mb-20 mb-10 font-sansation">
         <span class="">
             <span class=" will-change-contents lg:text-6xl text-4xl">{$_("main.title", {values:{name: "Kaan"}})}</span>
             {#key title}{@render titleText()}{/key}
@@ -291,8 +295,8 @@ root@user-23-unnamed-server:~$
         
         
         
-        <div class="m-auto w-60 h-80 md:visible invisible">
-            <Button class="w-40  h-10 lg:text-lg pointer-events-auto" onclick={() => window.location.href="#about"}><ArrowDown size={4}/> {$_("main.scroll_butt")}</Button>
+        <div class="m-auto w-40 h-80 md:visible">
+            <Button class="w-40 h-10 lg:text-lg pointer-events-auto" onclick={() => window.location.href="#about"}><ArrowDown size={4}/> {$_("main.scroll_butt")}</Button>
         </div>
 
         <div id="about" class="w-screen">
@@ -345,21 +349,21 @@ root@user-23-unnamed-server:~$
                 <h1 class="md:text-5xl text-2xl text-center font-bold">{@html $_("main.current.title")}</h1>
                 
                 <div class="grid md:grid-rows-0 grid-rows-2 md:grid-cols-2 grid-cols-1 m-auto justify-items-center-safe md:ml-10 mt-10 md:h-150 pointer-events-auto">
-                    <div class="md:w-200 md:h-100 w-100 h-60 bg-muted rounded-2xl space-x-10 p-5 pt-0">
+                    <div class="md:w-200 md:h-100 w-100 h-70 bg-muted rounded-2xl space-x-10 p-5 pt-0">
                         <h1 class="mt-2 mb-2 text-3xl text-center font-semibold">{$_("main.current.current.title")}</h1>
                         <h2 class="text-2xl font-bellota-text"> {$_("main.current.current.body")}</h2>
                         <h3 class="text-2xl mt-5  font-bellota-text">{$_("main.current.current.offer_label")}: <span class="font-sansation">{@html AVAILABLE_FOR_WORK == 2 ? $_("main.current.current.available") : AVAILABLE_FOR_WORK == 1 ? $_("main.current.current.maybe") : $_("main.current.current.not_available")}</span></h3>
                     </div>
 
 
-                    <div class="bg-muted rounded-2xl md:w-100 md:h-100">
+                    <div class="bg-muted rounded-2xl md:w-100 md:h-100  w-100 h-100">
                         <h1 class="text-3xl text-center font-semibold mt-2"> {$_("main.contact.title")}</h1>
                         <h2 class="text-2xl ml-5 mt-10 mb-5"> Kaan Özdamar </h2>
                         <div class="flex-col flex gap-5">
-                            <Button variant="link" class="text-2xl mr-auto ml-5"><LinkedinIcon class="size-6"/> LinkedIn</Button>
-                            <Button variant="link" class="text-2xl mr-auto ml-5"><GithubIcon class="size-6"/> Github</Button>
-                            <Button variant="link" class="text-2xl mr-auto ml-5"><FileIcon class="size-6"/> My CV</Button>
-                            <Button variant="link" class="text-2xl mr-auto ml-5"><MailIcon class="size-6"/> Email Me!</Button>
+                            <Button variant="link" class="text-2xl mr-auto ml-5" onclick={() => window.open("https://www.linkedin.com/in/kaan-ozdamar-56a701368/")}><LinkedinIcon class="size-6"/> LinkedIn</Button>
+                            <Button variant="link" class="text-2xl mr-auto ml-5" onclick={() => window.open("https://github.com/Hiktls")}><GithubIcon class="size-6"/> Github</Button>
+                            <Button variant="link" class="text-2xl mr-auto ml-5" onclick={() => window.open("/CVFinal.pdf")}><FileIcon class="size-6"/> My CV</Button>
+                            <Button variant="link" class="text-2xl mr-auto ml-5" onclick={() => window.open("mailto:kaandev22@gmail.com")}><MailIcon class="size-6"/> Email Me!</Button>
                         </div>
                     </div>
                 </div>

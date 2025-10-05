@@ -1,0 +1,1 @@
+<h1 class="text-center text-destructive lg:text-6xl text-4xl">404 Error! This address does not exist...</h1>

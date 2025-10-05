@@ -12,8 +12,11 @@
 	//i18n
 	import "$lib/i18n";
     import {isLocaleLoaded} from "$lib/i18n";
-	import {isLoading} from "svelte-i18n";
+	import {isLoading, locale} from "svelte-i18n";
+	import * as DropdownMenu  from "$lib/components/ui/dropdown-menu/index";
 
+
+	let currentLocale = $state("en");
 
 	let { children } = $props();
 
@@ -21,7 +24,9 @@
 	let blockAmount = $state(0);
 	let blockSize = 20;
 
-
+	$effect(() => {
+		locale.set(currentLocale);
+	});
 	let nCols = $state(0);
 	let nRows = $state(0);
 
@@ -81,9 +86,52 @@
 				</div>
 			<header class="z-1 pt-1">
 				<div class="flex flex-row justify-end gap-5 w-screen h-12 items-end z-1">
-					<Button class="justify-center mt-auto mb-auto mr-1 z-1" variant="outline">
-						Language <Languages class="z-1"/>
-					</Button>
+
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({props})}
+							<Button {...props} class="justify-center mt-auto mb-auto mr-1 z-1" variant="outline"> Language <Languages class="z-1"/> </Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+
+						<DropdownMenu.Content>
+							<DropdownMenu.Group>
+								<DropdownMenu.Label>Pick Your Language</DropdownMenu.Label>
+								<DropdownMenu.Separator/>
+								<DropdownMenu.RadioGroup bind:value={currentLocale}>
+									<DropdownMenu.RadioItem value="en">
+										English
+									</DropdownMenu.RadioItem>
+									<DropdownMenu.RadioItem value="fr">
+										Français
+									</DropdownMenu.RadioItem>
+									<DropdownMenu.RadioItem value="es">
+										Español
+									</DropdownMenu.RadioItem>
+									<DropdownMenu.RadioItem value="de">
+										Deutsch
+									</DropdownMenu.RadioItem>
+
+									<DropdownMenu.RadioItem value="it">
+										Italiano
+									</DropdownMenu.RadioItem>
+									<DropdownMenu.RadioItem value="tr">
+										Türkçe
+									</DropdownMenu.RadioItem>
+									<DropdownMenu.RadioItem value="ru">
+										Русский
+									</DropdownMenu.RadioItem>
+									<DropdownMenu.RadioItem value="pt">
+										Português
+									</DropdownMenu.RadioItem>
+
+
+								</DropdownMenu.RadioGroup>
+							</DropdownMenu.Group>
+						</DropdownMenu.Content>
+
+					</DropdownMenu.Root>
+
 					<Button variant="outline" class="justify-center mt-auto mb-auto mr-1 z-1" onclick={toggleMode}>
 						{#key mode}
 							{#if mode.current == "dark"}

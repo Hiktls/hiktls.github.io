@@ -378,10 +378,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@lucide/svelte@^0.515.0":
-  version "0.515.0"
-  resolved "https://registry.yarnpkg.com/@lucide/svelte/-/svelte-0.515.0.tgz#f25d03b05b436fe01746a183ae9b759df83af930"
-  integrity sha512-CEAyqcZmNBfYzVgaRmK2RFJP5tnbXxekRyDk0XX/eZQRfsJmkDvmQwXNX8C869BgNeryzmrRyjHhUL6g9ZOHNA==
+"@lucide/svelte@^0.544.0":
+  version "0.544.0"
+  resolved "https://registry.yarnpkg.com/@lucide/svelte/-/svelte-0.544.0.tgz#567aff4744be52c642dc978a4594c90fba816099"
+  integrity sha512-9f9O6uxng2pLB01sxNySHduJN3HTl5p0HDu4H26VR51vhZfiMzyOMe9Mhof3XAk4l813eTtl+/DYRvGyoRR+yw==
 
 "@napi-rs/wasm-runtime@^0.2.11":
   version "0.2.12"
@@ -567,10 +567,10 @@
   resolved "https://registry.yarnpkg.com/@sveltejs/adapter-auto/-/adapter-auto-6.0.1.tgz#29973229e53fcc3d102a51704ea66a420ccd2e65"
   integrity sha512-mcWud3pYGPWM2Pphdj8G9Qiq24nZ8L4LB7coCUckUEy5Y7wOWGJ/enaZ4AtJTcSm5dNK1rIkBRoqt+ae4zlxcQ==
 
-"@sveltejs/adapter-static@^3.0.9":
-  version "3.0.9"
-  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-static/-/adapter-static-3.0.9.tgz#f31e4c8e54a08598e88eca9d7ebd864e9f4080dc"
-  integrity sha512-aytHXcMi7lb9ljsWUzXYQ0p5X1z9oWud2olu/EpmH7aCu4m84h7QLvb5Wp+CFirKcwoNnYvYWhyP/L8Vh1ztdw==
+"@sveltejs/adapter-static@^3.0.10":
+  version "3.0.10"
+  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-static/-/adapter-static-3.0.10.tgz#526ab78cd1d3a861dd0233e8ff34a204af40d595"
+  integrity sha512-7D9lYFWJmB7zxZyTE/qxjksvMqzMuYrrsyh1f4AlZqeZeACPRySjbC3aFiY55wb1tWUaKOQG9PVbm74JcN2Iew==
 
 "@sveltejs/kit@^2.22.0":
   version "2.27.0"
@@ -783,16 +783,16 @@ axobject-query@^4.1.0:
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-4.1.0.tgz#28768c76d0e3cff21bc62a9e2d0b6ac30042a1ee"
   integrity sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==
 
-bits-ui@^2.8.6:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/bits-ui/-/bits-ui-2.9.0.tgz#cf14a5cc9fb559b82c1f6e63eae142dc9b34a4a8"
-  integrity sha512-5lj7L4/TvC0SQHfynwGSXFXO9mDeVszW4+C+lDbEMQFesWT78Z3tkfPTzGYsm8PBauP847uE5xovDGAhndjuog==
+bits-ui@^2.11.0:
+  version "2.11.4"
+  resolved "https://registry.yarnpkg.com/bits-ui/-/bits-ui-2.11.4.tgz#88ae37212f4381f36e8ddeef131d72bdc4001bca"
+  integrity sha512-OlVBJhNUMDHbIAf8oDAyPchIrU8b1S5NAMm6enMZSKx5HKcf/QPI485/BL1r4EPlv4O3m45e59hBRCETtYFdxg==
   dependencies:
     "@floating-ui/core" "^1.7.1"
     "@floating-ui/dom" "^1.7.1"
     esm-env "^1.1.2"
-    runed "^0.29.1"
-    svelte-toolbelt "^0.9.3"
+    runed "^0.31.1"
+    svelte-toolbelt "^0.10.4"
     tabbable "^6.2.0"
 
 chokidar@^4.0.1:
@@ -1367,10 +1367,17 @@ runed@^0.25.0:
   dependencies:
     esm-env "^1.0.0"
 
-runed@^0.29.0, runed@^0.29.1:
+runed@^0.29.0:
   version "0.29.2"
   resolved "https://registry.yarnpkg.com/runed/-/runed-0.29.2.tgz#708e4ee7df59c4f1b91240a43219c4d3cbe9e7c6"
   integrity sha512-0cq6cA6sYGZwl/FvVqjx9YN+1xEBu9sDDyuWdDW1yWX7JF2wmvmVKfH+hVCZs+csW+P3ARH92MjI3H9QTagOQA==
+  dependencies:
+    esm-env "^1.0.0"
+
+runed@^0.31.1:
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/runed/-/runed-0.31.1.tgz#9b92036c89f621b71bf8b258f8d58315b0cc360d"
+  integrity sha512-v3czcTnO+EJjiPvD4dwIqfTdHLZ8oH0zJheKqAHh9QMViY7Qb29UlAMRpX7ZtHh7AFqV60KmfxaJ9QMy+L1igQ==
   dependencies:
     esm-env "^1.0.0"
 
@@ -1431,6 +1438,15 @@ svelte-i18n@^4.0.1:
     sade "^1.8.1"
     tiny-glob "^0.2.9"
 
+svelte-toolbelt@^0.10.4:
+  version "0.10.5"
+  resolved "https://registry.yarnpkg.com/svelte-toolbelt/-/svelte-toolbelt-0.10.5.tgz#f6d499a15d58d6599eb177de595e633cc2c79532"
+  integrity sha512-8e+eWTgxw1aiLxhDE8Rb1X6AoLitqpJz+WhAul2W7W58C8KoLoJQf1TgQdFPBiCPJ0Jg5y0Zi1uyua9em4VS0w==
+  dependencies:
+    clsx "^2.1.1"
+    runed "^0.29.0"
+    style-to-object "^1.0.8"
+
 svelte-toolbelt@^0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/svelte-toolbelt/-/svelte-toolbelt-0.7.1.tgz#63e9c6629456a1a0dd57812f85426e4631fd754e"
@@ -1438,15 +1454,6 @@ svelte-toolbelt@^0.7.1:
   dependencies:
     clsx "^2.1.1"
     runed "^0.23.2"
-    style-to-object "^1.0.8"
-
-svelte-toolbelt@^0.9.3:
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/svelte-toolbelt/-/svelte-toolbelt-0.9.3.tgz#e790e09a55b405445ab855ba2796b16a5cc0c7a8"
-  integrity sha512-HCSWxCtVmv+c6g1ACb8LTwHVbDqLKJvHpo6J8TaqwUme2hj9ATJCpjCPNISR1OCq2Q4U1KT41if9ON0isINQZw==
-  dependencies:
-    clsx "^2.1.1"
-    runed "^0.29.0"
     style-to-object "^1.0.8"
 
 svelte@^5.0.0:

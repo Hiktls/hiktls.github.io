@@ -309,7 +309,7 @@ contract EtherWallet {
 {/snippet}
 
 
-<div class="md:h-screen w-screen bg-no-repeat font-sansation mt-60 overflow-x-hidden">
+<div class="md:h-500 h-500 w-screen bg-no-repeat font-sansation mt-60 overflow-x-hidden">
     <div class="md:w-225 w-100 text-center h-50 m-auto md:mb-20 mb-10 font-sansation">
         <span class="">
             <span class=" will-change-contents lg:text-6xl text-4xl">{$_("main.title", {values:{name: "Kaan"}})}</span>
@@ -380,7 +380,7 @@ contract EtherWallet {
                     </div>
 
 
-                    <div class="bg-muted rounded-2xl md:w-100 md:h-100  w-80 h-80">
+                    <div class="bg-muted rounded-2xl md:w-100 md:h-100  w-80 h-100">
                         <h1 class="text-3xl text-center font-semibold mt-2"> {$_("main.contact.title")}</h1>
                         <h2 class="text-2xl ml-5 mt-10 mb-5"> Kaan Özdamar </h2>
                         <div class="flex-col flex gap-5">
